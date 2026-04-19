@@ -1,0 +1,1020 @@
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg-panel: #141414;
+    --bg-panel-2: #1a1a1a;
+    --border: #2a2a2a;
+    --border-strong: #3a3a3a;
+    --text: #f5f5f5;
+    --text-muted: #8a8a8a;
+    --text-dim: #5a5a5a;
+    --teal: #5dcaa5;
+    --teal-dim: #2d8a70;
+    --teal-bg: rgba(93, 202, 165, 0.08);
+    --orange: #f0997b;
+    --orange-dim: #a85f40;
+    --orange-bg: rgba(240, 153, 123, 0.08);
+    --green: #97c459;
+    --green-bg: rgba(151, 196, 89, 0.1);
+    --red: #e24b4a;
+    --red-bg: rgba(226, 75, 74, 0.1);
+    --mono: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+    --sans: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  .scorecard-app * {
+    box-sizing: border-box;
+  }
+
+  .scorecard-app {
+    font-family: var(--sans);
+    color: var(--text);
+    background: var(--bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    min-height: 400px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--text);
+    border-bottom-color: var(--orange);
+  }
+
+  .slide { display: none; }
+  .slide.active { display: block; }
+
+  /* ===== HEADER ===== */
+  .slide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+  .slide-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin: 0 0 10px;
+  }
+  .slide-title {
+    font-size: 34px;
+    font-weight: 500;
+    margin: 0 0 6px;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+  .slide-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+    max-width: 520px;
+    line-height: 1.5;
+  }
+  .slide-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    text-align: right;
+    line-height: 1.8;
+  }
+  .slide-meta .val { color: var(--text); }
+
+  /* ===== GLOSSARY SLIDE ===== */
+  .glossary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .bucket-panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+  }
+  .bucket-panel .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .bucket-panel .prose {
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 28px;
+    max-width: 440px;
+  }
+  .bucket-panel .prose .k-grr { color: var(--teal); }
+  .bucket-panel .prose .k-growth { color: var(--orange); }
+  .bucket-panel .prose .k-nrr { color: var(--green); }
+
+  .bucket-viz {
+    margin-top: 20px;
+  }
+  .bucket-viz-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .bucket-stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    height: 110px;
+    margin-bottom: 10px;
+  }
+  .bucket-col {
+    position: relative;
+    background: var(--bg-panel-2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bucket-fill-grr {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: var(--teal);
+    opacity: 0.7;
+  }
+  .bucket-fill-growth {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: var(--orange);
+    opacity: 0.7;
+  }
+  .bucket-col.end {
+    display: flex;
+    flex-direction: column;
+  }
+  .bucket-col.end .seg-grr {
+    background: var(--teal);
+    opacity: 0.7;
+    flex: 84;
+  }
+  .bucket-col.end .seg-growth {
+    background: var(--orange);
+    opacity: 0.7;
+    flex: 39;
+  }
+  .bucket-col.end .seg-empty {
+    flex: 77;
+  }
+  .bucket-viz-captions {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+  .bucket-viz-captions b { color: var(--text); font-weight: 500; }
+
+  /* Definition rows */
+  .def-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .def-row {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    align-items: center;
+    gap: 16px;
+  }
+  .def-row .acronym {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 500;
+  }
+  .def-row .acronym .sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: block;
+    margin-top: 2px;
+  }
+  .def-row.grr .acronym { color: var(--teal); }
+  .def-row.arr .acronym { color: var(--orange); }
+  .def-row.nrr .acronym { color: var(--green); }
+  .def-body .def-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+  }
+  .def-body .def-desc {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.45;
+  }
+  .badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    background: var(--bg-panel-2);
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+  }
+  .badge.teal { color: var(--teal); border-color: var(--teal-dim); background: var(--teal-bg); }
+  .badge.orange { color: var(--orange); border-color: var(--orange-dim); background: var(--orange-bg); }
+  .badge.green { color: var(--green); border-color: rgba(151, 196, 89, 0.4); background: var(--green-bg); }
+
+  .why-panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin-top: 10px;
+  }
+  .why-panel .why-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .why-panel .why-title {
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .why-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .why-card {
+    padding: 12px 14px;
+    border-radius: 8px;
+  }
+  .why-card.healthy {
+    background: var(--green-bg);
+    border: 1px solid rgba(151, 196, 89, 0.3);
+  }
+  .why-card.masked {
+    background: var(--red-bg);
+    border: 1px solid rgba(226, 75, 74, 0.3);
+  }
+  .why-card .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .why-card.healthy .tag { color: var(--green); }
+  .why-card.masked .tag { color: var(--red); }
+  .why-card .body {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.45;
+    margin-bottom: 8px;
+  }
+  .why-card .math {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* ===== CALCULATOR SLIDE ===== */
+  .inputs-row {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 1rem;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+  }
+  .input-field label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .input-field input, .input-field select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 13px;
+    outline: none;
+  }
+  .input-field input:focus, .input-field select:focus {
+    border-color: var(--orange);
+  }
+  .input-field select {
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 13px;
+  }
+
+  .buckets-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 1rem;
+  }
+
+  .bucket-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bucket-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .bucket-card.retention::before { background: var(--teal); }
+  .bucket-card.growth::before { background: var(--orange); }
+
+  .bucket-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .bucket-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .bucket-eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .retention .bucket-eyebrow { color: var(--teal); }
+  .retention .bucket-eyebrow .dot { background: var(--teal); }
+  .growth .bucket-eyebrow { color: var(--orange); }
+  .growth .bucket-eyebrow .dot { background: var(--orange); }
+
+  .weight-chip {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 4px 9px;
+    border-radius: 4px;
+  }
+  .retention .weight-chip {
+    background: var(--teal-bg);
+    color: var(--teal);
+    border: 1px solid var(--teal-dim);
+  }
+  .growth .weight-chip {
+    background: var(--orange-bg);
+    color: var(--orange);
+    border: 1px solid var(--orange-dim);
+  }
+
+  .bucket-h {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+  }
+  .bucket-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.45;
+    margin: 0 0 18px;
+  }
+
+  .tri-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  .tri-stat .lbl {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .tri-stat .val {
+    font-family: var(--mono);
+    font-size: 17px;
+    font-weight: 500;
+  }
+  .tri-stat .val.muted { color: var(--text-muted); }
+
+  .progress-wrap {
+    margin-top: 14px;
+    position: relative;
+  }
+  .progress-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .progress-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .progress-pct {
+    font-size: 22px;
+    font-weight: 500;
+    font-family: var(--mono);
+  }
+  .progress-pct .small { font-size: 12px; color: var(--text-muted); }
+
+  .progress-track {
+    height: 8px;
+    background: var(--bg-panel-2);
+    border-radius: 4px;
+    overflow: visible;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+  .retention .progress-fill { background: var(--teal); }
+  .growth .progress-fill { background: var(--orange); }
+
+  .gate-marker {
+    position: absolute;
+    top: -4px;
+    width: 2px;
+    height: 16px;
+    background: var(--red);
+    transform: translateX(-1px);
+  }
+  .gate-marker::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    width: 8px;
+    height: 8px;
+    background: var(--red);
+    transform: rotate(45deg);
+    border-radius: 1px;
+  }
+  .gate-label {
+    position: absolute;
+    top: -30px;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--red);
+    padding: 3px 7px;
+    background: var(--red-bg);
+    border: 1px solid rgba(226, 75, 74, 0.4);
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .status-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .status-line.pass {
+    background: var(--green-bg);
+    color: var(--green);
+    border: 1px solid rgba(151, 196, 89, 0.3);
+  }
+  .status-line.fail {
+    background: var(--red-bg);
+    color: var(--red);
+    border: 1px solid rgba(226, 75, 74, 0.3);
+  }
+  .status-line.neutral {
+    background: var(--bg-panel-2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .status-line .icon {
+    font-family: var(--mono);
+    font-weight: 500;
+  }
+
+  /* NRR rollup */
+  .rollup {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .rollup .rollup-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .rollup .rollup-name {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .rollup .rollup-name .dim {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 13px;
+    margin-left: 6px;
+  }
+  .rollup .rollup-math {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+  .rollup .rollup-result {
+    text-align: right;
+  }
+  .rollup .rollup-pct {
+    font-size: 34px;
+    font-weight: 500;
+    font-family: var(--mono);
+    line-height: 1;
+  }
+  .rollup .rollup-pct.on-pace { color: var(--green); }
+  .rollup .rollup-pct.off-pace { color: var(--orange); }
+  .rollup .rollup-flag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .rollup-flag.on-pace { color: var(--green); }
+  .rollup-flag.off-pace { color: var(--orange); }
+
+  /* Plan boxes */
+  .plan-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .plan-box {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-left: 2px solid;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .plan-box.retention { border-left-color: var(--teal); }
+  .plan-box.growth { border-left-color: var(--orange); }
+  .plan-box .plan-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .plan-box.retention .plan-label { color: var(--teal); }
+  .plan-box.growth .plan-label { color: var(--orange); }
+  .plan-box .plan-q {
+    font-size: 13px;
+    color: var(--text);
+    margin: 0 0 4px;
+    font-style: italic;
+  }
+  .plan-box .plan-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .glossary-grid, .buckets-grid, .plan-grid, .why-grid { grid-template-columns: 1fr; }
+    .inputs-row { grid-template-columns: 1fr 1fr; }
+    .rollup { grid-template-columns: 1fr; text-align: center; }
+    .rollup .rollup-result { text-align: center; }
+  }
+</style>
+
+<div class="scorecard-app">
+  <h2 class="sr-only" style="position:absolute;left:-9999px;">AD scorecard calculator with glossary and interactive calculator tabs</h2>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="glossary">Mental model</button>
+    <button class="tab" data-tab="calculator">Scorecard calculator</button>
+  </div>
+
+  <!-- ===== GLOSSARY SLIDE ===== -->
+  <div class="slide active" id="slide-glossary">
+    <div class="slide-header">
+      <div>
+        <p class="slide-eyebrow">Coaching · Glossary</p>
+        <h1 class="slide-title">GRR vs. Growth ARR vs. NRR.</h1>
+        <p class="slide-subtitle">All three have "recurring revenue" in the name. They measure different things. Here's the mental model.</p>
+      </div>
+      <div class="slide-meta">
+        Mental model<br><span class="val">Read before the scorecard</span>
+      </div>
+    </div>
+
+    <div class="glossary-grid">
+      <div class="bucket-panel">
+        <div class="label">THE BUCKET</div>
+        <div class="prose">
+          Your book is a bucket of water. <span class="k-grr">GRR</span> is how much stayed in. <span class="k-growth">Growth ARR</span> is new water poured on top. Divide the final level by the starting level → that's <span class="k-nrr">NRR</span>.
+        </div>
+
+        <div class="bucket-viz">
+          <div class="bucket-viz-labels">
+            <span>START OF PERIOD</span>
+            <span>END OF PERIOD</span>
+          </div>
+          <div class="bucket-stack">
+            <div class="bucket-col">
+              <div class="bucket-fill-grr" style="height: 100%;"></div>
+            </div>
+            <div class="bucket-col end">
+              <div class="seg-empty"></div>
+              <div class="seg-growth"></div>
+              <div class="seg-grr"></div>
+            </div>
+          </div>
+          <div class="bucket-viz-captions">
+            <span><b>$500K</b> starting ARR</span>
+            <span><b>$420K kept + $195K added</b> = $615K · NRR 123%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="def-col">
+        <div class="def-row grr">
+          <div class="acronym">GRR</div>
+          <div class="def-body">
+            <div class="def-name">Gross Recurring Revenue</div>
+            <div class="def-desc">Retention only. What you kept of what you started with.</div>
+          </div>
+          <div class="badge teal">CEILING · 100%</div>
+        </div>
+        <div class="def-row arr">
+          <div class="acronym">ARR<span class="sub">growth</span></div>
+          <div class="def-body">
+            <div class="def-name">Growth Annual Recurring Revenue</div>
+            <div class="def-desc">Expansion only. New dollars on top — upsell, cross-sell, uplift.</div>
+          </div>
+          <div class="badge orange">NO CEILING · $ TARGET</div>
+        </div>
+        <div class="def-row nrr">
+          <div class="acronym">NRR</div>
+          <div class="def-body">
+            <div class="def-name">Net Recurring Revenue</div>
+            <div class="def-desc">Retention + expansion, combined. Booked ÷ starting ARR.</div>
+          </div>
+          <div class="badge green">BEST REPS · 110%+</div>
+        </div>
+
+        <div class="why-panel">
+          <div class="why-label">WHY GIANNA TRACKS THEM SEPARATELY</div>
+          <div class="why-title">Two reps can hit the same NRR — with very different book health.</div>
+          <div class="why-grid">
+            <div class="why-card healthy">
+              <div class="tag">✓ HEALTHY</div>
+              <div class="body">Flat renewals plus strong expansion. The book is solid underneath the growth.</div>
+              <div class="math">GRR 100% · Growth big → NRR 115%</div>
+            </div>
+            <div class="why-card masked">
+              <div class="tag">✗ MASKED</div>
+              <div class="body">Some churn, covered by massive expansion. The NRR looks fine; the retention doesn't.</div>
+              <div class="math">GRR 85% · Growth huge → NRR 115%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CALCULATOR SLIDE ===== -->
+  <div class="slide" id="slide-calculator">
+    <div class="slide-header">
+      <div>
+        <p class="slide-eyebrow"><span id="m-eyebrow">AD SCORECARD · FY26 Q2</span></p>
+        <h1 class="slide-title">Your book, in two buckets.</h1>
+        <p class="slide-subtitle">Renewal holds the floor. Growth builds the ceiling. The NRR gate decides which one you get paid for.</p>
+      </div>
+      <div class="slide-meta">
+        AD · <span class="val" id="m-ad">[Name]</span><br>
+        Territory · <span class="val" id="m-territory">West</span>
+      </div>
+    </div>
+
+    <div class="inputs-row">
+      <div class="input-field">
+        <label>AD name</label>
+        <input type="text" id="in-ad" value="[Name]" placeholder="AD name">
+      </div>
+      <div class="input-field">
+        <label>Period</label>
+        <select id="in-period">
+          <option value="Q1">FY26 Q1</option>
+          <option value="Q2" selected>FY26 Q2</option>
+          <option value="Q3">FY26 Q3</option>
+          <option value="Q4">FY26 Q4</option>
+          <option value="FY">Full year</option>
+        </select>
+      </div>
+      <div class="input-field">
+        <label>GRR target ($)</label>
+        <input type="number" id="in-grr-target" value="500000" step="10000">
+      </div>
+      <div class="input-field">
+        <label>GRR booked ($)</label>
+        <input type="number" id="in-grr-booked" value="420000" step="10000">
+      </div>
+      <div class="input-field">
+        <label>Growth booked ($)</label>
+        <input type="number" id="in-growth-booked" value="195000" step="10000">
+      </div>
+    </div>
+
+    <div class="buckets-grid">
+      <!-- RETENTION CARD -->
+      <div class="bucket-card retention">
+        <div class="bucket-top">
+          <div class="bucket-eyebrow"><span class="dot"></span>RETENTION · GRR</div>
+          <div class="weight-chip">Weight · 40%</div>
+        </div>
+        <h2 class="bucket-h">Renew the book</h2>
+        <p class="bucket-sub">Water that stays in the bucket. Ceiling is 100% — can only go down from churn.</p>
+
+        <div class="tri-stats">
+          <div class="tri-stat">
+            <div class="lbl">Target</div>
+            <div class="val muted" id="r-target">$500,000</div>
+          </div>
+          <div class="tri-stat">
+            <div class="lbl">Booked</div>
+            <div class="val" id="r-booked">$420,000</div>
+          </div>
+          <div class="tri-stat">
+            <div class="lbl">Remaining</div>
+            <div class="val" id="r-remaining">$80,000</div>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-top">
+            <span class="progress-label">Attainment</span>
+            <span class="progress-pct" id="r-pct">84<span class="small">%</span></span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="r-bar" style="width: 84%;"></div>
+            <div class="gate-marker" id="r-gate" style="left: 75%;">
+              <span class="gate-label">GATE · 75%</span>
+            </div>
+          </div>
+          <div class="status-line pass" id="r-status">
+            <span class="icon">●</span>
+            <span id="r-status-text">Above the gate — Growth acceleration unlocked.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- GROWTH CARD -->
+      <div class="bucket-card growth">
+        <div class="bucket-top">
+          <div class="bucket-eyebrow"><span class="dot"></span>EXPANSION · GROWTH ARR</div>
+          <div class="weight-chip">Weight · 60%</div>
+        </div>
+        <h2 class="bucket-h">Grow the book</h2>
+        <p class="bucket-sub">New water poured in. Upsell, cross-sell, uplift. No ceiling — every dollar counts.</p>
+
+        <div class="tri-stats">
+          <div class="tri-stat">
+            <div class="lbl">Target</div>
+            <div class="val muted" id="g-target">$175,000</div>
+          </div>
+          <div class="tri-stat">
+            <div class="lbl">Booked</div>
+            <div class="val" id="g-booked">$195,000</div>
+          </div>
+          <div class="tri-stat">
+            <div class="lbl">Remaining</div>
+            <div class="val" id="g-remaining">$0</div>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-top">
+            <span class="progress-label">Attainment</span>
+            <span class="progress-pct" id="g-pct">111<span class="small">%</span></span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="g-bar" style="width: 100%;"></div>
+          </div>
+          <div class="status-line neutral" id="g-status">
+            <span class="icon">●</span>
+            <span id="g-status-text">$0 of expansion still to close this period.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NRR ROLLUP -->
+    <div class="rollup">
+      <div>
+        <div class="rollup-eyebrow">ROLLED UP</div>
+        <div class="rollup-name">Net Recurring Revenue <span class="dim">· the result, not the target</span></div>
+      </div>
+      <div class="rollup-math" id="nrr-math">$615,000 booked ÷ $500,000 starting ARR</div>
+      <div class="rollup-result">
+        <div class="rollup-flag on-pace" id="nrr-flag">▲ ON PACE</div>
+        <div class="rollup-pct on-pace" id="nrr-pct">123<span class="small" style="font-size:14px;color:var(--text-muted);">%</span></div>
+      </div>
+    </div>
+
+    <!-- PLAN BOXES -->
+    <div class="plan-grid">
+      <div class="plan-box retention">
+        <div class="plan-label">RENEWAL PLAN</div>
+        <p class="plan-q">How am I going to renew my book?</p>
+        <p class="plan-hint">Two sentences. Which accounts are at risk, and what's the play to close them…</p>
+      </div>
+      <div class="plan-box growth">
+        <div class="plan-label">GROWTH PLAN</div>
+        <p class="plan-q">How am I going to grow my book?</p>
+        <p class="plan-hint">Two sentences. Which accounts have expansion headroom, and what's the motion…</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Tab switching
+  const tabs = document.querySelectorAll('.tab');
+  const slides = document.querySelectorAll('.slide');
+  tabs.forEach(t => {
+    t.addEventListener('click', () => {
+      const target = t.dataset.tab;
+      tabs.forEach(x => x.classList.toggle('active', x === t));
+      slides.forEach(s => s.classList.toggle('active', s.id === 'slide-' + target));
+    });
+  });
+
+  // Calculator logic
+  const GROWTH_TARGET_ANNUAL = 700000;
+  const PERIOD_FRACTIONS = { Q1: 0.25, Q2: 0.25, Q3: 0.25, Q4: 0.25, FY: 1.0 };
+
+  const fmt = (n) => '$' + Math.round(n).toLocaleString('en-US');
+
+  function recompute() {
+    const ad = document.getElementById('in-ad').value || '[Name]';
+    const period = document.getElementById('in-period').value;
+    const grrTarget = Math.max(0, parseFloat(document.getElementById('in-grr-target').value) || 0);
+    const grrBooked = Math.max(0, parseFloat(document.getElementById('in-grr-booked').value) || 0);
+    const growthBooked = Math.max(0, parseFloat(document.getElementById('in-growth-booked').value) || 0);
+
+    // Growth target scales with period — $700K annual
+    const periodFrac = PERIOD_FRACTIONS[period] || 0.25;
+    const growthTarget = GROWTH_TARGET_ANNUAL * periodFrac;
+
+    // Header meta
+    document.getElementById('m-ad').textContent = ad;
+    document.getElementById('m-eyebrow').textContent = 'AD SCORECARD · FY26 ' + (period === 'FY' ? 'FULL YEAR' : period);
+
+    // Retention card
+    const rRemaining = Math.max(0, grrTarget - grrBooked);
+    const rAttainment = grrTarget > 0 ? (grrBooked / grrTarget) * 100 : 0;
+    document.getElementById('r-target').textContent = fmt(grrTarget);
+    document.getElementById('r-booked').textContent = fmt(grrBooked);
+    document.getElementById('r-remaining').textContent = fmt(rRemaining);
+    document.getElementById('r-pct').innerHTML = Math.round(rAttainment) + '<span class="small">%</span>';
+
+    // Cap bar at 100% visually but keep real value for status
+    const rBarWidth = Math.min(100, rAttainment);
+    document.getElementById('r-bar').style.width = rBarWidth + '%';
+
+    // Gate status
+    const gateStatus = document.getElementById('r-status');
+    const gateText = document.getElementById('r-status-text');
+    if (rAttainment >= 75) {
+      gateStatus.className = 'status-line pass';
+      gateText.textContent = 'Above the gate — Growth acceleration unlocked.';
+    } else {
+      gateStatus.className = 'status-line fail';
+      gateText.textContent = 'Below the gate — Growth acceleration locked until 75%.';
+    }
+
+    // Growth card
+    const gRemaining = Math.max(0, growthTarget - growthBooked);
+    const gAttainment = growthTarget > 0 ? (growthBooked / growthTarget) * 100 : 0;
+    document.getElementById('g-target').textContent = fmt(growthTarget);
+    document.getElementById('g-booked').textContent = fmt(growthBooked);
+    document.getElementById('g-remaining').textContent = fmt(gRemaining);
+    document.getElementById('g-pct').innerHTML = Math.round(gAttainment) + '<span class="small">%</span>';
+    const gBarWidth = Math.min(100, gAttainment);
+    document.getElementById('g-bar').style.width = gBarWidth + '%';
+
+    const gStatus = document.getElementById('g-status');
+    const gStatusText = document.getElementById('g-status-text');
+    if (gAttainment >= 100) {
+      gStatus.className = 'status-line pass';
+      gStatusText.textContent = 'Target cleared. Every additional dollar accelerates.';
+    } else if (gAttainment >= 50) {
+      gStatus.className = 'status-line neutral';
+      gStatusText.textContent = fmt(gRemaining) + ' of expansion still to close this period.';
+    } else {
+      gStatus.className = 'status-line fail';
+      gStatusText.textContent = fmt(gRemaining) + ' of expansion still to close — pace is behind.';
+    }
+
+    // NRR rollup
+    const totalBooked = grrBooked + growthBooked;
+    const nrrPct = grrTarget > 0 ? (totalBooked / grrTarget) * 100 : 0;
+    document.getElementById('nrr-math').textContent = fmt(totalBooked) + ' booked ÷ ' + fmt(grrTarget) + ' starting ARR';
+    document.getElementById('nrr-pct').innerHTML = Math.round(nrrPct) + '<span class="small" style="font-size:14px;color:var(--text-muted);">%</span>';
+
+    const nrrFlag = document.getElementById('nrr-flag');
+    const nrrPctEl = document.getElementById('nrr-pct');
+    if (nrrPct >= 100) {
+      nrrFlag.className = 'rollup-flag on-pace';
+      nrrFlag.textContent = '▲ ON PACE';
+      nrrPctEl.className = 'rollup-pct on-pace';
+    } else {
+      nrrFlag.className = 'rollup-flag off-pace';
+      nrrFlag.textContent = '▼ BEHIND';
+      nrrPctEl.className = 'rollup-pct off-pace';
+    }
+  }
+
+  ['in-ad', 'in-period', 'in-grr-target', 'in-grr-booked', 'in-growth-booked'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', recompute);
+    el.addEventListener('change', recompute);
+  });
+
+  recompute();
+})();
+</script>
